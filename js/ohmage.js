@@ -244,6 +244,17 @@ oh.campaign_read = function(cb){
 	});
 	return req;
 };
+oh.campaign_read.long = function(campaign, cb){
+        var req = oh.call("/campaign/read", {
+                output_format : "long",
+		campaign_urn_list : campaign
+        }, function(res){
+                if(!cb) return;
+                var arg = (res.data ) ? res.data : null;
+                cb(arg)
+        });
+        return req;
+};
 oh.campaign_read_xml = function(campaign, cb){
         var req = oh.call.xml("/campaign/read", {
                 output_format : "xml",
@@ -264,7 +275,22 @@ oh.campaign_read.meta = function(cb){
 	});
 	return req;
 };
-oh.survey_response_read_meta = function(campaign, cb){
+oh.survey_response_read = function(campaign, cb){
+        var req = oh.call("/survey_response/read", {
+                output_format : "json-rows",
+                campaign_urn: campaign,
+                collapse: "true",
+                user_list: "urn:ohmage:special:all",
+                survey_id_list: "urn:ohmage:special:all",
+                column_list: "urn:ohmage:user:id,urn:ohmage:context:utc_timestamp,urn:ohmage:survey:privacy_state"
+        }, function(res){
+                if(!cb) return;
+                var arg = (res.data ) ? res.data : null;
+                cb(arg)
+        });
+        return req;
+};
+oh.survey_response_read.privacy = function(campaign, cb){
         var req = oh.call("/survey_response/read", {
                 output_format : "json-rows",
                 campaign_urn: campaign,
@@ -274,11 +300,22 @@ oh.survey_response_read_meta = function(campaign, cb){
                 column_list: "urn:ohmage:survey:privacy_state"
         }, function(res){
                 if(!cb) return;
-                var arg = res;
+                var arg = (res.data ) ? res.data : null;
                 cb(arg)
         });
         return req;
 };
+oh.user.read = function(user_list, cb){
+        var req = oh.call("/user/read", {
+                user_list: user_list
+        }, function(res){
+                if(!cb) return;
+                var arg = (res.data ) ? res.data : null;
+                cb(arg)
+        });
+        return req;
+};
+
 
 
 oh.utils.parsecsv = function(string){

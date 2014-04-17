@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>dc.js - Bar Chart Example</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../css/dc.css"/>
+    <link rel="stylesheet" type="text/css" href="jquery.dynatable.css"/>
+</head>
+<body>
+<a href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a>
+<div id="test">
+<table id="dc-data-table">
+<thead>
+<tr>
+ <th data-dynatable-column="key">User</th>
+ <th data-dynatable-column="value.shared">Shared</th>
+ <th data-dynatable-column="value.private">Private</th>
+ <th data-dynatable-column="value.total">Total</th>
+</tr>
+</thead>
+</table></div>
+<div id="test2"></div>
+<div id="test3"></div>
+<div id="test4"></div>
+<div id="test5"></div>
+
+<script type="text/javascript" src="../js/d3.js"></script>
+<script type="text/javascript" src="../js/crossfilter.js"></script>
+<script type="text/javascript" src="../js/dc.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="jquery.dynatable.js"></script>
+<script type="text/javascript">
+
+
+var pie = dc.pieChart("#test2");
+var pie2 = dc.rowChart("#test3");
+var line = dc.barChart("#test4");
+var shPr = dc.pieChart("#test5");
+
+d3.csv("mydata.csv", function(error, experiments) {
+
+parseDate = d3.time.format("%Y-%m-%d %X").parse;
+
+experiments.forEach(function(d) {
+	d.total= +d.total;
+	//d.total= +d.shared_count + +d.private_count;
+	d.realdate = parseDate(d.date);
+});
+  var ndx                 = crossfilter(experiments),
+      activeDimension = ndx.dimension(function(d) { return d.activity; });
+      dateDim = ndx.dimension(function(d) { return d3.time.day.floor(d.realdate);} );
+      dateGroup = dateDim.group().reduceSum(function(d) { return d.total });
+       minDate = dateDim.bottom(2)[1].realdate;
+       maxDate = dateDim.top(1)[0].realdate;
+      shPrDim = ndx.dimension(function(d) { if (d.total > 0) {return d.shPr;} });
+      shPrGroup = shPrDim.group().reduceSum(function(d) {return d.total;});
+console.log("min: "+minDate+", max: "+maxDate);
+
+      userDim_a = ndx.dimension(function(d) { if (d.total > 0) {return d.user;} });
+      userGroup_a = userDim_a.group().reduceSum(function(d) {return d.total; });
+      activeGroup = activeDimension.group().reduce(
+            function (p, d) {
+                if (d.user in p.users) p.users[d.user]++;
+                else {
+                    p.users[d.user] = 1;
+                    p.userCount++;
+                }
+                return p;
+            },
+
+            function (p, d) {
+                p.users[d.user]--;
+                if (p.users[d.user] === 0) {
+                    delete p.users[d.user];
+                    p.userCount--;
+                }
+                return p;
+            },
+
+            function () {
+                return {
+                    userCount: 0,
+                    users: {}
+                };
+            });
+
+     userDim_b = ndx.dimension(function(d) { return d.user;} );
+     userGroup_b = userDim_b.group().reduce(
+	  function (p, d) {
+		++p.count;
+		p.total += d.total;
+		if (d.shPr === "shared" && d.total > 0){
+			p.shared++
+		} else if (d.shPr === "private" && d.total >0){
+			p.private++
+		}
+		return p;
+	  },
+          function (p, d) {
+                --p.count;
+                p.total -= d.total;
+                if (d.shPr === "shared" && d.total >0){
+                        p.shared--
+                } else if (d.shPr === "private" && d.total >0){
+                        p.private--
+                }
+                return p;
+          },
+          function () {
+		return { count: 0, total: 0, shared: 0, private: 0 };
+          });
+
+  line
+    .width(500).height(200)
+    .dimension(dateDim)
+    .group(dateGroup)
+    .x(d3.time.scale().domain([minDate, maxDate]))
+    .centerBar(true)  
+    .round(d3.time.day.round)
+    .xUnits(d3.time.days);
+
+  pie
+    .width(270).height(220).radius(80)
+    .dimension(activeDimension)
+    .group(activeGroup)
+    .valueAccessor(function (d) {
+	return d.value.userCount; 
+    });
+
+  shPr
+    .width(270).height(220).radius(80)
+    .dimension(shPrDim)
+    .group(shPrGroup);
+
+  pie2
+    .width(270).height(220)
+    .dimension(userDim_a)
+    .group(userGroup_a)
+    .elasticX(true);
+  function nestedAttributeWriter(record) {
+    // checks if id is a nested property, finds said property via iteration.
+    // `this` is the column object in settings.columns
+	console.log(JSON.stringify(this));
+	if((this.id).indexOf('.') !== -1){
+		var prop, props = (this.id).split('.');
+		for (var i = 0, iLen = props.length - 1; i < iLen; i++) {
+        	  prop = props[i];
+        	  var candidate = record[prop];
+        	  if (candidate !== undefined) {
+            	    record = candidate;
+        	  } else {
+            		break;
+        	  }
+    		}
+         return record[props[i]];
+	} else {
+    	 return record[this.id];
+	}
+  };
+
+        var dynatable = $('#dc-data-table').dynatable({
+                features: {
+                    pushState: false,
+		    paginate: false,
+		    recordCount: false
+                },
+                dataset: {
+                    records: userGroup_b.top(Infinity),
+                },
+		writers: {
+		    _attributeWriter: nestedAttributeWriter
+		}
+            }).data('dynatable');
+        
+        function RefreshTable() {
+                dc.events.trigger(function () {
+                    dynatable.settings.dataset.originalRecords = userGroup_b.top(Infinity);
+                    dynatable.process();
+                });
+            };
+        
+         for (var i = 0; i < dc.chartRegistry.list().length; i++) {
+                var chartI = dc.chartRegistry.list()[i];
+                chartI.on("filtered", RefreshTable);
+            }
+        RefreshTable();
+
+
+  dc.renderAll();
+});
+
+
+</script>
+
+</body>
+</html>
