@@ -20,29 +20,30 @@ $("#campaign_select").change(function() {
 	currentCampaign = this.value;
 	oh.campaign_read.long(this.value, function(response){
 		all_users_dups = [];
-               //this is a super hack for lausd.  code gods, please have mercy!
 		if (response[currentCampaign]["user_role_campaign"]["participant"]){
 			for (var i = 0; i < response[currentCampaign]["user_role_campaign"]["participant"].length; i++) {
-			   //this is a super hack for lausd.  code gods, please have mercy!
-                           if (response[currentCampaign]["user_role_campaign"]["participant"][i].indexOf("mobilize-") === -1){
+			   if (includeUser(response[currentCampaign]["user_role_campaign"]["participant"][i])){
  			   all_users_dups.push(response[currentCampaign]["user_role_campaign"]["participant"][i]);
 			   }
 			}
 		}
                 if (response[currentCampaign]["user_role_campaign"]["analyst"]){
                         for (var i = 0; i < response[currentCampaign]["user_role_campaign"]["analyst"].length; i++) {
+                           if (includeUser(response[currentCampaign]["user_role_campaign"]["analyst"][i])){
                            all_users_dups.push(response[currentCampaign]["user_role_campaign"]["analyst"][i]);
-                        }
+			   }
+			}
                 }
                 if (response[currentCampaign]["user_role_campaign"]["author"]){
                         for (var i = 0; i < response[currentCampaign]["user_role_campaign"]["author"].length; i++) {
+                           if (includeUser(response[currentCampaign]["user_role_campaign"]["author"][i])){
                            all_users_dups.push(response[currentCampaign]["user_role_campaign"]["author"][i]);
+			   }
                         }
                 }
                 if (response[currentCampaign]["user_role_campaign"]["supervisor"]){
                         for (var i = 0; i < response[currentCampaign]["user_role_campaign"]["supervisor"].length; i++) {
-			  //this is a super hack for lausd.  code gods, please have mercy!
-			   if (response[currentCampaign]["user_role_campaign"]["supervisor"][i].indexOf("mobilize-") === -1){ 
+                           if (includeUser(response[currentCampaign]["user_role_campaign"]["supervisor"][i])){
                            all_users_dups.push(response[currentCampaign]["user_role_campaign"]["supervisor"][i]);
 			   }
                         }
@@ -130,17 +131,6 @@ $("#campaign_select").change(function() {
                                    .range(["#1f77b4", "#ff7f0e"]))
       .colorAccessor(function(d) { return d.key;});
   
-  //make user_chart
-  /*var user_chart = dc.rowChart("#user_chart");
-  userchartDimension = ndx.dimension(function(d) { if (d.count > 0) {return d.user;} });
-  userchartGroup = userchartDimension.group().reduceSum(function(d) {return d.total; });
-    //and the actual chart
-    user_chart
-      .width(270).height(820)
-      .dimension(userchartDimension)
-      .group(userchartGroup)
-      .elasticX(true);
-  */
   //make date_chart
   date_chart = dc.barChart("#date-chart");
   dateDimension = ndx.dimension(function(d) {return d3.time.day.floor(d.realdate);});
@@ -168,12 +158,11 @@ $("#campaign_select").change(function() {
 	function () {
 	  return { shared: 0, private: 0 };
 	});
-  //dateGroup = dateDimension.group().reduceSum(function(d) { return d.count });
    minDate = dateGroup.top(Infinity)[0].key
    maxDate = dateDimension.top(1)[0].realdate;
     //and the actual chart
     date_chart
-      .width(600).height(200)
+      .width(500).height(200)
       .dimension(dateDimension)
       .group(dateGroup, "Shared")
 	.valueAccessor(function (d) {
@@ -308,11 +297,25 @@ $("#campaign_select").change(function() {
                 chartI.on("filtered", RefreshTable);
             }
         RefreshTable();
+   $("#generated-content").show();
    dc.renderAll();
 });
 });
 });
 });
+// a hack to prevent certain users from displaying on lausd.mobilizingcs.org
+function includeUser(user){
+  if (window.location.host !== "lausd.mobilizingcs.org"){
+   return true;
+  }else{
+   if (user.indexOf("mobilize-") !== -1){
+	console.log("user is mobilize: "+user);
+	return false; 
+   } else {
+  return true;
+   } 
+  }
+};
 //show or hide urn on demand
 $('a[id="hidePersonal"]').click(function () {
     $("#user-table tr th:nth-child(2)").toggle(this.checked);

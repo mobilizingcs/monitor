@@ -27,9 +27,9 @@
 
 </head>
 <body>
-<div class="container-fluid">
+<div class="container">
  <div class="row">
-  <div class="col-md-3">
+  <div class="col-md-6">
    <h1>Campaign Monitoring Tool <small><a href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a></small></h1>
   </div>
   <div class="col-md-3"><br>
@@ -38,24 +38,24 @@
   </select>
   </div>
  </div> <!-- end row 1 -->
- <div class="row">
+ <div class="row" style="display:none" id="generated-content">
   <div class="col-md-5 well">
   <div class="row"> <!-- subrow -->
-   <div class="col-md-6" id="privacy-pie">
-    <div class="row">
-    <div class="col-md-6"><span><h4>Shared vs. Private <a class="reset" href="javascript:privacy_pie.filterAll();dc.redrawAll();" style="display: none;">(reset)</a></h4></span></div>
-    </div>
-   </div>
    <div class="col-md-6" id="activity-pie">
     <div class="row">
-    <div class="col-md-6"><span><h4>Active vs. Inactive <a class="reset" href="javascript:activity_pie.filterAll();dc.redrawAll();" style="display: none;">(reset)</a></h4></span></div>
+    <div class="col-md-12"><span><h5>Active/Inactive Users<a class="reset" href="javascript:activity_pie.filterAll();dc.redrawAll();" style="display: none;">(reset)</a></h5></span></div>
+    </div>
+   </div>
+   <div class="col-md-6" id="privacy-pie">
+    <div class="row">
+    <div class="col-md-12"><span><h5>Shared/Private Resp<a class="reset" href="javascript:privacy_pie.filterAll();dc.redrawAll();" style="display: none;">(reset)</a></h5></span></div>
     </div>
    </div>
   </div> <!-- end subrow -->
   <div class="row"> <!-- subrow -->
    <div class="col-md-12" id="date-chart">
     <div class="row">
-    <div class="col-md-6"><span><h4>Total Responses by day <a class="reset" href="javascript:date_chart.filterAll();dc.redrawAll();" style="display: none;">(reset)</a></h4></span></div>
+    <div class="col-md-12"><span><h5>Total Responses by Day <a class="reset" href="javascript:date_chart.filterAll();dc.redrawAll();" style="display: none;">(reset)</a></h5></span></div>
     </div>
    </div>
   </div> <!-- end subrow -->
@@ -63,7 +63,7 @@
    <div class="col-md-6 col-md-offset-1 well">
     <div class="row">
     <div class="col-md-6"><span><h4>User List</h4></span></div>
-    <div class="col-md-2 col-md-offset-4"><p class="text-right"><a id="hidePersonal" href="#"><span id="hidePersonal_text">Hide</span> Personal Info</a></p></div>
+    <div class="col-md-6"><p class="text-right"><a id="hidePersonal" href="#"><span id="hidePersonal_text">Hide</span> Personal Info</a></p></div>
     </div>
    <table id="user-table" class="table">
     <thead>
