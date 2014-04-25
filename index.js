@@ -15,6 +15,7 @@ $(function(){
 		    .attr("value",v.urn)
 		    .text(v.name));
 		});
+		 $("#campaign_select").removeProp('disabled');
 		});
                 oh.keepalive();
         });
