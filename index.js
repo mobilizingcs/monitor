@@ -1,23 +1,28 @@
 $(function(){
-	var campaignList = {};
+	var campaignList = [];
 	var currentResponses = {};
         //init page
         oh.ping(function(){
             oh.campaign_read(function(campaigns){
+		//make an array of campaign name/urn. someone tell me how to do this better.
  		 $.each(campaigns, function(i, value){
+		   campaignList.push({"name": value.name, "urn": i});
+		 });
+		var sortList = _.sortBy(campaignList, function(row){ return row.name.toLowerCase(); });
+		$.each(sortList, function(i, v){
 		  $("#campaign_select")
 		    .append($("<option></option>")
-		    .attr("value",i)
-		    .attr("label",i)
-		    .text(i));
-		 });
+		    .attr("value",v.urn)
+		    .text(v.name));
+		});
 		});
                 oh.keepalive();
         });
 
 $("#campaign_select").change(function() {
 	$("#campaign_title").text();
-	currentCampaign = this.value;
+	
+	currentCampaign = $("#campaign_select option:selected").val();
 	oh.campaign_read.long(this.value, function(response){
 		all_users_dups = [];
 		if (response[currentCampaign]["user_role_campaign"]["participant"]){
