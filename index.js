@@ -160,6 +160,7 @@ $("#campaign_select").change(function() {
 	});
    minDate = dateGroup.top(Infinity)[0].key
    maxDate = dateDimension.top(1)[0].realdate;
+  var ndays = Math.round((maxDate - minDate) / (24*60*60*1000));
     //and the actual chart
     date_chart
       .width(500).height(200)
@@ -172,10 +173,12 @@ $("#campaign_select").change(function() {
         return d.value["private"];
         })
       .elasticY(true)
-      .x(d3.time.scale().domain([minDate, maxDate]))
-      .centerBar(true)  
-      //.round(d3.time.day.round)
+      .x(d3.time.scale().domain([minDate, maxDate]).rangeRound([ndays]))
+      .centerBar(false)
+      .gap(1)
+      .brushOn(true)
       .xUnits(d3.time.days);
+
   //make user table, this one is kinda big..
     //first, let's make a dimension to control the table contents.
     usertableDimension = ndx.dimension(function(d) { return d.activity;} );
@@ -312,7 +315,6 @@ function includeUser(user){
    return true;
   }else{
    if (user.indexOf("mobilize-") !== -1){
-	console.log("user is mobilize: "+user);
 	return false; 
    } else {
   return true;
@@ -327,9 +329,5 @@ $('a[id="hidePersonal"]').click(function () {
     $('#user-table tr td:nth-child(3)').toggle(this.checked);
     var text = $('#hidePersonal_text').text();
      $('#hidePersonal_text').text( text == "Show" ? "Hide" : "Show");
-});
-// hightlight table row when clicked
-$('#user-table tbody tr').click(function(){
-	console.log("test");
 });
 }); //end of index.js-wide function
