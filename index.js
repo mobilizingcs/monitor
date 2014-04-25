@@ -274,6 +274,9 @@ $("#campaign_select").change(function() {
 		    sort: true,
                     recordCount: true
                 },
+		inputs: {
+		    recordCountPlacement: 'before'
+		},
                 dataset: {
                     records: table_data,
 		    sorts: { 'total': -1 },
