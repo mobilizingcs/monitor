@@ -52,6 +52,10 @@ $("#campaign_select").change(function() {
 		oh.user.read(all_users.toString(), function(response){
 			all_user_info = response;
 	oh.survey_response_read(currentCampaign, function(currentResponses){
+		 //display count of surveys
+		 surveyCount = _.size(currentResponses);
+		 $("#surveyCount").text(surveyCount);
+		 $("#surveyCount-p").show();
 		//add activity state of active to each of these users.
 		var active_users = [];
 		$.each(currentResponses, function(i, value){
