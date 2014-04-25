@@ -265,7 +265,7 @@ $("#campaign_select").change(function() {
                     pushState: false,
                     paginate: true,
 		    sort: true,
-                    recordCount: false
+                    recordCount: true
                 },
                 dataset: {
                     records: table_data,
@@ -274,7 +274,10 @@ $("#campaign_select").change(function() {
                 },
                 writers: {
                     _attributeWriter: nestedAttributeWriter
-                }
+                },
+		params: {
+		    records: 'users'
+		}
             }).data('dynatable');
         
         function RefreshTable() {
@@ -324,5 +327,9 @@ $('a[id="hidePersonal"]').click(function () {
     $('#user-table tr td:nth-child(3)').toggle(this.checked);
     var text = $('#hidePersonal_text').text();
      $('#hidePersonal_text').text( text == "Show" ? "Hide" : "Show");
+});
+// hightlight table row when clicked
+$('#user-table tbody tr').click(function(){
+	console.log("test");
 });
 }); //end of index.js-wide function
