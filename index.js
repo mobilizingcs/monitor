@@ -4,26 +4,34 @@ $(function(){
         //init page
         oh.ping(function(){
             oh.campaign_read(function(campaigns){
+		var hash = window.location.hash
+		var hashMatch = new String();
 		//make an array of campaign name/urn. someone tell me how to do this better.
  		 $.each(campaigns, function(i, value){
 		   campaignList.push({"name": value.name, "urn": i});
 		 });
 		var sortList = _.sortBy(campaignList, function(row){ return row.name.toLowerCase(); });
 		$.each(sortList, function(i, v){
+		  if (hash === "#"+v.urn) {
+			hashMatch = v.urn;
+		  }		
 		  $("#campaign_select")
 		    .append($("<option></option>")
 		    .attr("value",v.urn)
 		    .text(v.name));
 		});
 		 $("#campaign_select").removeProp('disabled');
+		 //if urn in hash matches, load this campaign, otherwise just ignore it
+		 if (hashMatch.length > 0) {
+		  $("#campaign_select").val(hashMatch).change();
+		 }
 		});
                 oh.keepalive();
         });
 
 $("#campaign_select").change(function() {
-	$("#campaign_title").text();
-	
 	currentCampaign = $("#campaign_select option:selected").val();
+	window.location.hash = currentCampaign;
 	oh.campaign_read.long(this.value, function(response){
 		all_users_dups = [];
 		if (response[currentCampaign]["user_role_campaign"]["participant"]){
