@@ -81,6 +81,11 @@ $("#campaign_select").change(function() {
 		 var user = inactive_users[i];
 		 currentResponses.splice(0,0,{"count":0,"privacy_state":"private","utc_timestamp":"1970-01-01 00:00:00","user": user, "first_name": all_user_info[user]["first_name"] || "unknown", "last_name": all_user_info[user]["last_name"] || "unknown", "activity":"inactive"});
 		};
+//catch and notify user if no users are attached to the campaign.
+if (active_users.length === 0 && inactive_users.length === 0) {
+	alert("This campaign has no users, please select another campaign");
+};
+
 // ~~~~ LET'S MAKE SOME CHARTS ~~~~
  //first, format the date like a date
  parseDate = d3.time.format("%Y-%m-%d %X").parse;
