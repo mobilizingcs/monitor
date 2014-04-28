@@ -72,6 +72,7 @@ $("#campaign_select").change(function() {
 		 $("#surveyCount-p").show();
 		//add activity state of active to each of these users.
 		var active_users = [];
+		var user_total = {};
 		$.each(currentResponses, function(i, value){
 		  var user = value['user'];
 			//TODO: make additional user/read calls for folks who are no longer attached to the campaign but have responses
@@ -82,12 +83,17 @@ $("#campaign_select").change(function() {
 		  value['first_name'] = all_user_info[user]["first_name"] || "unknown";
 		  value['last_name'] = all_user_info[user]["last_name"] || "unknown";
 		  value['activity'] = "active";
+		   //this is weird, but we need to count total responses per user for #distribution_graph below
+		   if (isNaN(user_total[user])){
+		    user_total[user] = new Number();
+		   }
+		   user_total[user] += value['count'];
 		});
 		active_users = _.uniq(active_users);
 		var inactive_users = _.difference(all_users, active_users);
 		for (var i=0; i < inactive_users.length; i++) {
 		 var user = inactive_users[i];
-		 currentResponses.splice(0,0,{"count":0,"privacy_state":"private","utc_timestamp":"1970-01-01 00:00:00","user": user, "first_name": all_user_info[user]["first_name"] || "unknown", "last_name": all_user_info[user]["last_name"] || "unknown", "activity":"inactive"});
+		 currentResponses.splice(0,0,{"count":0,"privacy_state":"private","utc_timestamp":"1970-01-01 00:00:00","user": user, "first_name": all_user_info[user]["first_name"] || "unknown", "last_name": all_user_info[user]["last_name"] || "unknown", "activity":"inactive", "user_total":0});
 		};
 //catch and notify user if no users are attached to the campaign.
 if (active_users.length === 0 && inactive_users.length === 0) {
@@ -99,8 +105,12 @@ if (active_users.length === 0 && inactive_users.length === 0) {
  parseDate = d3.time.format("%Y-%m-%d %X").parse;
   currentResponses.forEach(function(d) {
     d.realdate = parseDate(d.utc_timestamp);
+    if (user_total[d.user]){
+     d.user_total = user_total[d.user];
+    }else{
+     d.user_total = 0;
+    }
   });
-
  //now on to the real work
  var ndx = crossfilter(currentResponses)
 
@@ -206,8 +216,55 @@ if (active_users.length === 0 && inactive_users.length === 0) {
       .gap(1)
       .brushOn(true)
       .xUnits(d3.time.days);
+   
+  //make distribution_chart
+    dist_chart = dc.barChart("#dist-chart");
+    distDimension = ndx.dimension(function(d) { return d.user_total;} );
+    distGroup = distDimension.group().reduce( 
+            function (p, d) {
+                if (d.user in p.users) p.users[d.user]++;
+                else {
+                    p.users[d.user] = 1;
+                    p.userCount++;
+                }
+                return p;
+            },
 
-  //make user table, this one is kinda big..
+            function (p, d) {
+                p.users[d.user]--;
+                if (p.users[d.user] === 0) {
+                    delete p.users[d.user];
+                    p.userCount--;
+                }
+                return p;
+            },
+
+            function () {
+                return {
+                    userCount: 0,
+                    users: {}
+                };
+            }).order(function(d) { return d.user_total;});
+	maxResp = distDimension.top(1)[0].user_total;
+    //and the actual chart
+    dist_chart
+      .width(500).height(200)
+      .xAxisLabel("Response Count")
+      .yAxisLabel("User Count")
+      .dimension(distDimension)
+      .group(distGroup)
+     // .margins({top: 10, right: 10, bottom: 20, left: 40})
+      .valueAccessor(function (d) {
+          return d.value.userCount;
+      })
+      .elasticY(true)
+      //.elasticX(true)
+      .centerBar(true)
+      .x((d3.scale.linear().domain([-1, maxResp+1])))
+      .gap(1)
+      .brushOn(true)
+  
+//make user table, this one is kinda big..
     //first, let's make a dimension to control the table contents.
     usertableDimension = ndx.dimension(function(d) { return d.activity;} );
     usertableGroup = usertableDimension.group().reduce(
