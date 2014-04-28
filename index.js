@@ -126,8 +126,11 @@ $("#campaign_select").change(function() {
       .group(activityGroup)
       .valueAccessor(function (d) {
           return d.value.userCount; 
+      })
+      .label(function (d) {
+	return d.key + "(" + d.value.userCount + ")";
       });
-
+console.log(activityGroup.all());
  //make privacy_pie
   privacy_pie = dc.pieChart("#privacy-pie");
   privacyDimension = ndx.dimension(function(d) { if (d.count > 0) {return d.privacy_state;} });
@@ -139,7 +142,10 @@ $("#campaign_select").change(function() {
       .group(privacyGroup)
       .colors(d3.scale.ordinal().domain(["shared", "private"])
                                    .range(["#1f77b4", "#ff7f0e"]))
-      .colorAccessor(function(d) { return d.key;});
+      .colorAccessor(function(d) { return d.key;})
+      .label(function (d){
+	return d.key + "(" + d.value + ")";
+       });
   
   //make date_chart
   date_chart = dc.barChart("#date-chart");
@@ -188,6 +194,11 @@ $("#campaign_select").change(function() {
       .gap(1)
       .brushOn(true)
       .xUnits(d3.time.days);
+
+  //make percentile histogram
+  percentilechartDimension = ndx.dimension(function(d){ return d.user;} );
+  percentilechartGroup = percentilechartDimension.group().reduceSum(function(d){ return d.count;});
+  console.log(percentilechartGroup.all());
 
   //make user table, this one is kinda big..
     //first, let's make a dimension to control the table contents.
