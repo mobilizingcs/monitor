@@ -130,7 +130,6 @@ $("#campaign_select").change(function() {
       .label(function (d) {
 	return d.key + "(" + d.value.userCount + ")";
       });
-console.log(activityGroup.all());
  //make privacy_pie
   privacy_pie = dc.pieChart("#privacy-pie");
   privacyDimension = ndx.dimension(function(d) { if (d.count > 0) {return d.privacy_state;} });
@@ -194,11 +193,6 @@ console.log(activityGroup.all());
       .gap(1)
       .brushOn(true)
       .xUnits(d3.time.days);
-
-  //make percentile histogram
-  percentilechartDimension = ndx.dimension(function(d){ return d.user;} );
-  percentilechartGroup = percentilechartDimension.group().reduceSum(function(d){ return d.count;});
-  console.log(percentilechartGroup.all());
 
   //make user table, this one is kinda big..
     //first, let's make a dimension to control the table contents.
@@ -345,6 +339,7 @@ function includeUser(user){
    } 
   }
 };
+
 //show or hide urn on demand
 $('a[id="hidePersonal"]').click(function () {
     $("#user-table tr th:nth-child(2)").toggle(this.checked);
