@@ -63,9 +63,16 @@ $("#campaign_select").change(function() {
                         }
                 }
 		all_users = _.uniq(all_users_dups);
+	    //catch and don't run if campaign has no users/responses
+            if (all_users.length === 0){
+		alert("This campaign has no users, please select another campaign");
+		$("#generated-content").hide();
+		$("#surveyCount-p").hide();
+		$("#campaign_select").val("Select a campaign");	
+	    }else{
 		oh.user.read(all_users.toString(), function(response){
 			all_user_info = response;
-	oh.survey_response_read(currentCampaign, function(currentResponses){
+	          oh.survey_response_read(currentCampaign, function(currentResponses){
 		 //display count of surveys
 		 surveyCount = _.size(currentResponses);
 		 $("#surveyCount").text(surveyCount);
@@ -95,10 +102,6 @@ $("#campaign_select").change(function() {
 		 var user = inactive_users[i];
 		 currentResponses.splice(0,0,{"count":0,"privacy_state":"private","utc_timestamp":"1970-01-01 00:00:00","user": user, "first_name": all_user_info[user]["first_name"] || "unknown", "last_name": all_user_info[user]["last_name"] || "unknown", "activity":"inactive", "user_total":0});
 		};
-//catch and notify user if no users are attached to the campaign.
-if (active_users.length === 0 && inactive_users.length === 0) {
-	alert("This campaign has no users, please select another campaign");
-};
 
 // ~~~~ LET'S MAKE SOME CHARTS ~~~~
  //first, format the date like a date
@@ -393,10 +396,11 @@ if (active_users.length === 0 && inactive_users.length === 0) {
         RefreshTable();
    $("#generated-content").show();
    dc.renderAll();
-});
-});
-});
-});
+}); //end survey_response/read
+}); //end user/read
+}; //end no-user if
+}); //end campaign/read
+}); //end onChange for #campaign_select
 // a hack to prevent certain users from displaying on lausd.mobilizingcs.org
 function includeUser(user){
   if (window.location.host !== "lausd.mobilizingcs.org"){
