@@ -74,7 +74,6 @@ $("#campaign_select").change(function() {
 			all_user_info = response;
 	          oh.survey_response_read(currentCampaign, function(currentResponses){
 		 //display count of surveys
-		console.log(currentResponses);
 		 surveyCount = _.size(currentResponses);
 		 $("#surveyCount").text(surveyCount);
 		 $("#surveyCount-p").show();
