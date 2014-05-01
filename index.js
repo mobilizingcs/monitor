@@ -74,6 +74,7 @@ $("#campaign_select").change(function() {
 			all_user_info = response;
 	          oh.survey_response_read(currentCampaign, function(currentResponses){
 		 //display count of surveys
+		console.log(currentResponses);
 		 surveyCount = _.size(currentResponses);
 		 $("#surveyCount").text(surveyCount);
 		 $("#surveyCount-p").show();
@@ -100,7 +101,7 @@ $("#campaign_select").change(function() {
 		var inactive_users = _.difference(all_users, active_users);
 		for (var i=0; i < inactive_users.length; i++) {
 		 var user = inactive_users[i];
-		 currentResponses.splice(0,0,{"count":0,"privacy_state":"private","utc_timestamp":"1970-01-01 00:00:00","user": user, "first_name": all_user_info[user]["first_name"] || "unknown", "last_name": all_user_info[user]["last_name"] || "unknown", "activity":"inactive", "user_total":0});
+		 currentResponses.splice(0,0,{"count":0,"privacy_state":"private","utc_timestamp":"1970-01-01 00:00:00","user": user, "first_name": all_user_info[user]["first_name"] || "unknown", "last_name": all_user_info[user]["last_name"] || "unknown", "activity":"inactive", "client": "na", "user_total":0});
 		};
 
 // ~~~~ LET'S MAKE SOME CHARTS ~~~~
@@ -256,16 +257,41 @@ $("#campaign_select").change(function() {
       .yAxisLabel("User Count")
       .dimension(distDimension)
       .group(distGroup)
-     // .margins({top: 10, right: 10, bottom: 20, left: 40})
       .valueAccessor(function (d) {
           return d.value.userCount;
       })
       .elasticY(true)
-      //.elasticX(true)
       .centerBar(true)
       .x((d3.scale.linear().domain([-1, maxResp+1])))
       .gap(1)
       .brushOn(true)
+
+  //make client string pie
+    client_pie = dc.pieChart("#client-pie");
+    clientDimension = ndx.dimension(function(d) { return d.client;} );
+    clientGroup = clientDimension.group().reduceSum(function(d) {return d.count;} );
+
+    //and the actual chart
+    client_pie
+      .width(270).height(220).radius(80)
+      .dimension(clientDimension)
+      .group(clientGroup);
+       //commenting for now, not the way I want to do it.
+      //.label(function (d){
+	//var cases = {
+//	  "mobilize-mwf-ios": s_client = "iOS",
+//	  "ohmage-android": s_client = "Android",
+//	  "browser-mwf": s_client = "Browser",
+//	  "ohmage-mwf": s_client = "iOS",
+//	  "android": s_client = "Android"
+//        };
+//	if (cases[s_client]) {
+//	  cases[d.key]();
+//	}
+//	 return s_client;
+//      }); 
+      //  return d.key + "(" + d.value + ")";
+      // });
   
 //make user table, this one is kinda big..
     //first, let's make a dimension to control the table contents.

@@ -282,7 +282,7 @@ oh.survey_response_read = function(campaign, cb){
                 collapse: "true",
                 user_list: "urn:ohmage:special:all",
                 survey_id_list: "urn:ohmage:special:all",
-                column_list: "urn:ohmage:user:id,urn:ohmage:context:utc_timestamp,urn:ohmage:survey:privacy_state"
+                column_list: "urn:ohmage:user:id,urn:ohmage:context:utc_timestamp,urn:ohmage:context:client,urn:ohmage:survey:privacy_state"
         }, function(res){
                 if(!cb) return;
                 var arg = (res.data ) ? res.data : null;
