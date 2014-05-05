@@ -38,7 +38,7 @@
   </select>
   </div>
   <div class="col-md-3"><br>
-   <p id="surveyCount-p" style="display:none"><span id="surveyCount">0</span> total responses</p>
+   <p id="surveyCount-p" style="display:none"><span id="surveyCount">0</span> total responses   <a data-toggle="modal" data-target="#info_modal"><span class="glyphicon glyphicon-info-sign"></span></a></p>
   </div>
  </div> <!-- end row 1 -->
  <div class="row" style="display:none" id="generated-content">
@@ -72,7 +72,7 @@
     </div>
    </div>
   </div>
-  </div>
+  </div> <!-- end leftside well 1-->
    <div class="col-md-6 col-md-offset-1 well">
     <div class="row">
     <div class="col-md-6"><span><h4>User List</h4></span></div>
@@ -93,6 +93,26 @@
   </div>
  </div>
 </div>
+<!-- info modal -->
+<div class="modal fade" id="info_modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="info_title"></h4>
+      </div>
+      <div class="modal-body">
+       <dl class="dl-horizontal">
+        <dt>Average responses per student</dt>
+        <dd>6</dd>
+       </dl>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 </body>
 
 </html>

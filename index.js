@@ -32,6 +32,7 @@ $(function(){
 $("#campaign_select").change(function() {
 	currentCampaign = $("#campaign_select option:selected").val();
 	window.location.hash = currentCampaign;
+	$("#info_title").text($("#campaign_select option:selected").text());
 	oh.campaign_read.long(this.value, function(response){
 		all_users_dups = [];
 		if (response[currentCampaign]["user_role_campaign"]["participant"]){
@@ -108,6 +109,7 @@ $("#campaign_select").change(function() {
  parseDate = d3.time.format("%Y-%m-%d %X").parse;
   currentResponses.forEach(function(d) {
     d.realdate = parseDate(d.utc_timestamp);
+    d.client = alignClientString(d.client);
     if (user_total[d.user]){
      d.user_total = user_total[d.user];
     }else{
@@ -275,22 +277,6 @@ $("#campaign_select").change(function() {
       .width(270).height(220).radius(80)
       .dimension(clientDimension)
       .group(clientGroup);
-       //commenting for now, not the way I want to do it.
-      //.label(function (d){
-	//var cases = {
-//	  "mobilize-mwf-ios": s_client = "iOS",
-//	  "ohmage-android": s_client = "Android",
-//	  "browser-mwf": s_client = "Browser",
-//	  "ohmage-mwf": s_client = "iOS",
-//	  "android": s_client = "Android"
-//        };
-//	if (cases[s_client]) {
-//	  cases[d.key]();
-//	}
-//	 return s_client;
-//      }); 
-      //  return d.key + "(" + d.value + ")";
-      // });
   
 //make user table, this one is kinda big..
     //first, let's make a dimension to control the table contents.
@@ -437,6 +423,19 @@ function includeUser(user){
   return true;
    } 
   }
+};
+
+//replace client strings with something a user might understand.
+function alignClientString(client){
+  switch (client) {
+   case 'mobilize-mwf-ios': client = 'iOS'; break;
+   case 'mobilize-mwf': client = 'iOS'; break;
+   case 'ohmage-mwf': client = 'iOS'; break;
+   case 'android': client = 'Android'; break;
+   case 'ohmage-android': client = 'Android'; break;
+   case 'browser-mwf': client = 'Browser'; break;
+  }
+  return client;
 };
 
 //show or hide urn on demand
