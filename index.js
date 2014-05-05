@@ -431,7 +431,7 @@ function buildInfoTable(responses){
    $("#info_userTotal").text("Total: "+userCount['total']+", Active: "+userCount['active']+" ("+Math.round(userCount['active']/userCount['total']*100)+"%), Inactive: "+userCount['inactive']+" ("+Math.round(userCount['inactive']/userCount['total']*100)+"%)");
    $("#info_responseTotal").text("Total: "+responseCount['total']+", Shared: "+responseCount['shared']+" ("+Math.round(responseCount['shared']/responseCount['total']*100)+"%), Private: "+responseCount['private']+" ("+Math.round(responseCount['private']/responseCount['total']*100)+"%)");
    $("#info_perUser").text(Math.round(responseCount['total']/userCount['active']));
-   $("#info_gps").text(gpsCount);
+   $("#info_gps").text(gpsCount+" ("+Math.round(gpsCount/responseCount['total']*100)+"% of responses)");
    $("#info_firstDate").text(d3.time.format('%b %e, %Y')(minDate));
    $("#info_lastDate").text(d3.time.format('%b %e, %Y')(maxDate));
    $("#info_totalDate").text(rangeDate);
