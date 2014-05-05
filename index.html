@@ -38,7 +38,7 @@
   </select>
   </div>
   <div class="col-md-3"><br>
-   <p id="surveyCount-p" style="display:none"><span id="surveyCount">0</span> total responses   <a data-toggle="modal" data-target="#info_modal"><span class="glyphicon glyphicon-info-sign"></span></a></p>
+   <p id="info_text" style="display:none"><span id="info_textResponses">0 responses / 0 users </span> <a data-toggle="modal" data-target="#info_modal"><span class="glyphicon glyphicon-info-sign"></span></a></p>
   </div>
  </div> <!-- end row 1 -->
  <div class="row" style="display:none" id="generated-content">
@@ -102,10 +102,15 @@
         <h4 class="modal-title" id="info_title"></h4>
       </div>
       <div class="modal-body">
-       <dl class="dl-horizontal">
-        <dt>Average responses per student</dt>
-        <dd>6</dd>
-       </dl>
+       <table id="info_table" class="table table-bordered">
+	<tr><td>User Totals</td><td><span id="info_userTotal">0</span></td></tr>
+        <tr><td>Response Totals</td><td><span id="info_responseTotal">0</span></td></tr>
+        <tr><td>Avg responses per active user</td><td><span id="info_perUser">0</span></td></tr>
+        <tr><td>Responses with GPS data</td><td><span id="info_gps">0</span></td></tr>
+        <tr><td>First Response Date</td><td><span id="info_firstDate">0</span></td></tr>
+        <tr><td>Last Response Date</td><td><span id="info_lastDate">0</span></td></tr>
+        <tr><td>Total Collection Days</td><td><span id="info_totalDate">0</span></td></tr>
+       </table>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

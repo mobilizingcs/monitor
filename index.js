@@ -68,16 +68,12 @@ $("#campaign_select").change(function() {
             if (all_users.length === 0){
 		alert("This campaign has no users, please select another campaign");
 		$("#generated-content").hide();
-		$("#surveyCount-p").hide();
+		$("#info_text").hide();
 		$("#campaign_select").val("Select a campaign");	
 	    }else{
 		oh.user.read(all_users.toString(), function(response){
 			all_user_info = response;
 	          oh.survey_response_read(currentCampaign, function(currentResponses){
-		 //display count of surveys
-		 surveyCount = _.size(currentResponses);
-		 $("#surveyCount").text(surveyCount);
-		 $("#surveyCount-p").show();
 		//add activity state of active to each of these users.
 		var active_users = [];
 		var user_total = {};
@@ -101,9 +97,9 @@ $("#campaign_select").change(function() {
 		var inactive_users = _.difference(all_users, active_users);
 		for (var i=0; i < inactive_users.length; i++) {
 		 var user = inactive_users[i];
-		 currentResponses.splice(0,0,{"count":0,"privacy_state":"private","utc_timestamp":"1970-01-01 00:00:00","user": user, "first_name": all_user_info[user]["first_name"] || "unknown", "last_name": all_user_info[user]["last_name"] || "unknown", "activity":"inactive", "client": "na", "user_total":0});
+		 currentResponses.splice(0,0,{"count":0,"privacy_state":"private","utc_timestamp":"1970-01-01 00:00:00","user": user, "first_name": all_user_info[user]["first_name"] || "unknown", "last_name": all_user_info[user]["last_name"] || "unknown", "activity":"inactive", "client": "na", "location_status": "unavailable", "user_total":0});
 		};
-
+		
 // ~~~~ LET'S MAKE SOME CHARTS ~~~~
  //first, format the date like a date
  parseDate = d3.time.format("%Y-%m-%d %X").parse;
@@ -116,6 +112,7 @@ $("#campaign_select").change(function() {
      d.user_total = 0;
     }
   });
+  buildInfoTable(currentResponses);
  //now on to the real work
  var ndx = crossfilter(currentResponses)
 
@@ -412,6 +409,34 @@ $("#campaign_select").change(function() {
 }; //end no-user if
 }); //end campaign/read
 }); //end onChange for #campaign_select
+//generate info table
+function buildInfoTable(responses){
+  var userCount = { total:0,active:0,inactive:0,list:[] }
+  var responseCount = { total:0,shared:0,private:0 }
+  var dateList = []
+  var gpsCount = 0;
+  responses.forEach(function(d) {
+   if (d.activity === "active" && _.indexOf(userCount['list'],d.user) === -1){ userCount['total']++; userCount['active']++; userCount['list'].push(d.user); }
+   if (d.activity === "inactive" && _.indexOf(userCount['list'],d.user) === -1){ userCount['total']++; userCount['inactive']++; userCount['list'].push(d.user); }
+   if (d.privacy_state === "shared" && d.count === 1) { responseCount['total']++; responseCount['shared']++;  }
+   if (d.privacy_state === "private" && d.count === 1) { responseCount['total']++; responseCount['private']++;  }
+   if (d.count === 1) { dateList.push(d3.time.day.floor(d.realdate));  }
+   if (d.location_status !== "unavailable") { gpsCount++;  }
+  });
+   var minDate = _.min(dateList);
+   var maxDate = _.max(dateList);
+   var rangeDate = (maxDate - minDate) /(1000*60*60*24);
+   $("#info_text").show();
+   $("#info_textResponses").text(responseCount['total']+" responses / "+userCount['total']+" users");
+   $("#info_userTotal").text("Total: "+userCount['total']+", Active: "+userCount['active']+" ("+Math.round(userCount['active']/userCount['total']*100)+"%), Inactive: "+userCount['inactive']+" ("+Math.round(userCount['inactive']/userCount['total']*100)+"%)");
+   $("#info_responseTotal").text("Total: "+responseCount['total']+", Shared: "+responseCount['shared']+" ("+Math.round(responseCount['shared']/responseCount['total']*100)+"%), Private: "+responseCount['private']+" ("+Math.round(responseCount['private']/responseCount['total']*100)+"%)");
+   $("#info_perUser").text(Math.round(responseCount['total']/userCount['active']));
+   $("#info_gps").text(gpsCount);
+   $("#info_firstDate").text(d3.time.format('%b %e, %Y')(minDate));
+   $("#info_lastDate").text(d3.time.format('%b %e, %Y')(maxDate));
+   $("#info_totalDate").text(rangeDate);
+};  
+
 // a hack to prevent certain users from displaying on lausd.mobilizingcs.org
 function includeUser(user){
   if (window.location.host !== "lausd.mobilizingcs.org"){
