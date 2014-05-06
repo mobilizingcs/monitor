@@ -30,6 +30,7 @@ $(function(){
         });
 
 $("#campaign_select").change(function() {
+	if($("#alertBox").is(':visible')){ $("#alertBox").hide(); }
 	currentCampaign = $("#campaign_select option:selected").val();
 	window.location.hash = currentCampaign;
 	$("#info_title").text($("#campaign_select option:selected").text());
@@ -66,7 +67,7 @@ $("#campaign_select").change(function() {
 		all_users = _.uniq(all_users_dups);
 	    //catch and don't run if campaign has no users/responses
             if (all_users.length === 0){
-		alert("This campaign has no users, please select another campaign");
+		$("#alertBox").fadeIn();	
 		$("#generated-content").hide();
 		$("#info_text").hide();
 		$("#campaign_select").val("Select a campaign");	
