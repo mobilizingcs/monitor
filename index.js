@@ -260,7 +260,7 @@ $("#campaign_select").change(function() {
       })
       .elasticY(true)
       .centerBar(true)
-      .x((d3.scale.linear().domain([-1, maxResp+1])))
+      .x((d3.scale.linear().domain([-1,((maxResp < 10) ? 10 : maxResp+1)])))
       .gap(1)
       .brushOn(true)
 
