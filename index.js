@@ -218,7 +218,8 @@ $("#campaign_select").change(function() {
       .gap(1)
       .brushOn(true)
       .xUnits(d3.time.days);
-   
+      date_chart.xAxis().ticks(5);  
+ 
   //make distribution_chart
     dist_chart = dc.barChart("#dist-chart");
     distDimension = ndx.dimension(function(d) { return d.user_total;} );
