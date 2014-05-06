@@ -460,6 +460,7 @@ function alignClientString(client){
    case 'android': client = 'Android'; break;
    case 'ohmage-android': client = 'Android'; break;
    case 'Mobilize': client = 'Android'; break;
+   case 'mobilize-android': client = "Android"; break;
    case 'browser-mwf': client = 'Browser'; break;
   }
   return client;
