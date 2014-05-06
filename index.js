@@ -423,8 +423,10 @@ function buildInfoTable(responses){
    if (d.count === 1) { dateList.push(d3.time.day.floor(d.realdate));  }
    if (d.location_status !== "unavailable") { gpsCount++;  }
   });
+	console.log(dateList);
    var minDate = _.min(dateList);
    var maxDate = _.max(dateList);
+   console.log("min"+minDate+"max"+maxDate);
    var rangeDate = (maxDate - minDate) /(1000*60*60*24);
    $("#info_text").show();
    $("#info_textResponses").text(responseCount['total']+" responses / "+userCount['total']+" users");
@@ -432,9 +434,9 @@ function buildInfoTable(responses){
    $("#info_responseTotal").text("Total: "+responseCount['total']+", Shared: "+responseCount['shared']+" ("+Math.round(responseCount['shared']/responseCount['total']*100)+"%), Private: "+responseCount['private']+" ("+Math.round(responseCount['private']/responseCount['total']*100)+"%)");
    $("#info_perUser").text(Math.round(responseCount['total']/userCount['active']));
    $("#info_gps").text(gpsCount+" ("+Math.round(gpsCount/responseCount['total']*100)+"% of responses)");
-   $("#info_firstDate").text(d3.time.format('%b %e, %Y')(minDate));
-   $("#info_lastDate").text(d3.time.format('%b %e, %Y')(maxDate));
-   $("#info_totalDate").text(rangeDate);
+   $("#info_firstDate").text((dateList.length > 0 ? d3.time.format('%b %e, %Y')(minDate) : "N/A"));
+   $("#info_lastDate").text((dateList.length > 0 ? d3.time.format('%b %e, %Y')(maxDate) : "N/A"));
+   $("#info_totalDate").text((dateList.length > 0 ? rangeDate : "N/A"));
 };  
 
 // a hack to prevent certain users from displaying on lausd.mobilizingcs.org
