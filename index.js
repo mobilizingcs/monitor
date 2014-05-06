@@ -423,10 +423,8 @@ function buildInfoTable(responses){
    if (d.count === 1) { dateList.push(d3.time.day.floor(d.realdate));  }
    if (d.location_status !== "unavailable") { gpsCount++;  }
   });
-	console.log(dateList);
    var minDate = _.min(dateList);
    var maxDate = _.max(dateList);
-   console.log("min"+minDate+"max"+maxDate);
    var rangeDate = (maxDate - minDate) /(1000*60*60*24);
    $("#info_text").show();
    $("#info_textResponses").text(responseCount['total']+" responses / "+userCount['total']+" users");
