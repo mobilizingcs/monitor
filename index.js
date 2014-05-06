@@ -396,6 +396,7 @@ $("#campaign_select").change(function() {
                     dynatable.settings.dataset.originalRecords = table_data;
                     dynatable.process();
                 });
+	    togglePersonal();    
             };
          for (var i = 0; i < dc.chartRegistry.list().length; i++) {
                 var chartI = dc.chartRegistry.list()[i];
@@ -465,12 +466,20 @@ function alignClientString(client){
 };
 
 //show or hide urn on demand
-$('a[id="hidePersonal"]').click(function () {
-    $("#user-table tr th:nth-child(2)").toggle(this.checked);
-    $("#user-table tr th:nth-child(3)").toggle(this.checked);
-    $("#user-table tr td:nth-child(2)").toggle(this.checked);
-    $('#user-table tr td:nth-child(3)').toggle(this.checked);
-    var text = $('#hidePersonal_text').text();
-     $('#hidePersonal_text').text( text == "Show" ? "Hide" : "Show");
+$('#hidePersonal').click(function () {
+  togglePersonal()
 });
+function togglePersonal(){
+    if ($("#hidePersonal").is(':checked')) {
+    	$("#user-table tr th:nth-child(2)").show(this.checked);
+    	$("#user-table tr th:nth-child(3)").show(this.checked);
+    	$("#user-table tr td:nth-child(2)").show(this.checked);
+    	$('#user-table tr td:nth-child(3)').show(this.checked);
+    }else{
+        $("#user-table tr th:nth-child(2)").hide(this.checked);
+        $("#user-table tr th:nth-child(3)").hide(this.checked);
+        $("#user-table tr td:nth-child(2)").hide(this.checked);
+        $('#user-table tr td:nth-child(3)').hide(this.checked);
+    }
+};
 }); //end of index.js-wide function
