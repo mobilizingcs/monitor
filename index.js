@@ -458,6 +458,7 @@ function alignClientString(client){
    case 'ohmage-mwf': client = 'iOS'; break;
    case 'android': client = 'Android'; break;
    case 'ohmage-android': client = 'Android'; break;
+   case 'Mobilize': client = 'Android'; break;
    case 'browser-mwf': client = 'Browser'; break;
   }
   return client;
