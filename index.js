@@ -147,7 +147,7 @@ $("#campaign_select").change(function() {
             });
     //and the actual pie
    activity_pie
-      .width(270).height(220).radius(80)
+      .width(180).height(180).radius(80)
       .dimension(activityDimension)
       .group(activityGroup)
       .valueAccessor(function (d) {
@@ -162,7 +162,7 @@ $("#campaign_select").change(function() {
   privacyGroup = privacyDimension.group().reduceSum(function(d) {return d.count;});
     //and the actual pie
     privacy_pie
-      .width(270).height(220).radius(80)
+      .width(180).height(180).radius(80)
       .dimension(privacyDimension)
       .group(privacyGroup)
       .colors(d3.scale.ordinal().domain(["shared", "private"])
@@ -204,7 +204,7 @@ $("#campaign_select").change(function() {
   var ndays = Math.round((maxDate - minDate) / (24*60*60*1000));
     //and the actual chart
     date_chart
-      .width(500).height(200)
+      .width(390).height(200)
       .dimension(dateDimension)
       .group(dateGroup, "Shared")
 	.valueAccessor(function (d) {
@@ -252,7 +252,7 @@ $("#campaign_select").change(function() {
 	maxResp = distDimension.top(1)[0].user_total;
     //and the actual chart
     dist_chart
-      .width(500).height(200)
+      .width(390).height(200)
       .xAxisLabel("Response Count")
       .yAxisLabel("User Count")
       .dimension(distDimension)
@@ -266,16 +266,62 @@ $("#campaign_select").change(function() {
       .gap(1)
       .brushOn(true)
 
-  //make client string pie
-    client_pie = dc.pieChart("#client-pie");
+  //make client string user pie
+    client_pie_user = dc.pieChart("#client-pie-user");
     clientDimension = ndx.dimension(function(d) { return d.client;} );
-    clientGroup = clientDimension.group().reduceSum(function(d) {return d.count;} );
+    clientGroupUser = clientDimension.group().reduce(
+            function (p, d) {
+                if (d.user in p.users) p.users[d.user]++;
+                else {
+                   if (d.client != "na"){
+                    p.users[d.user] = 1;
+                    p.userCount++;
+                   }
+                }
+                return p;
+            },
+
+            function (p, d) {
+                p.users[d.user]--;
+                if (p.users[d.user] === 0) {
+                    delete p.users[d.user];
+                    p.userCount--;
+                }
+                return p;
+            },
+
+            function () {
+                return {
+                    userCount: 0,
+                    users: {}
+                };
+            });
 
     //and the actual chart
-    client_pie
-      .width(270).height(220).radius(80)
+    client_pie_user
+      .width(180).height(180).radius(80)
       .dimension(clientDimension)
-      .group(clientGroup);
+      .group(clientGroupUser)
+      .valueAccessor(function (d) {
+          return d.value.userCount;
+      })
+      .label(function (d) {
+        return d.key + "(" + d.value.userCount + ")";
+      });
+
+ //make client string response pie
+    client_pie_resp = dc.pieChart("#client-pie-resp");
+    clientDimension = ndx.dimension(function(d) { return d.client;} );
+    clientGroupResp = clientDimension.group().reduceSum(function(d) {return d.count;} );
+
+    //and the actual pie
+    client_pie_resp
+      .width(180).height(180).radius(80)
+      .dimension(clientDimension)
+      .group(clientGroupResp)
+      .label(function (d) {
+        return d.key + "(" + d.value + ")";
+      });
   
 //make user table, this one is kinda big..
     //first, let's make a dimension to control the table contents.
