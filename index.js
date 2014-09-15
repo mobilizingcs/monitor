@@ -514,10 +514,14 @@ function alignClientString(client){
   return client;
 };
 
-//show or hide urn on demand
+//show or hide personal data on demand
 $('#hidePersonal').click(function () {
   togglePersonal()
 });
+//keep personal data toggle in sync with pagination
+$('#user-table').bind('dynatable:afterProcess', function(e, data) {
+        togglePersonal();
+}); 
 function togglePersonal(){
     if ($("#hidePersonal").is(':checked')) {
     	$("#user-table tr th:nth-child(2)").show(this.checked);
