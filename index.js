@@ -30,80 +30,63 @@ $(function(){
         });
 
 $("#campaign_select").change(function() {
-	if($("#alertBox").is(':visible')){ $("#alertBox").hide(); }
-	currentCampaign = $("#campaign_select option:selected").val();
-	window.location.hash = currentCampaign;
-	$("#info_title").text($("#campaign_select option:selected").text());
-	oh.campaign_read.long(this.value, function(response){
-		all_users_dups = [];
-		if (response[currentCampaign]["user_role_campaign"]["participant"]){
-			for (var i = 0; i < response[currentCampaign]["user_role_campaign"]["participant"].length; i++) {
-			   if (includeUser(response[currentCampaign]["user_role_campaign"]["participant"][i])){
- 			   all_users_dups.push(response[currentCampaign]["user_role_campaign"]["participant"][i]);
-			   }
-			}
-		}
-                if (response[currentCampaign]["user_role_campaign"]["analyst"]){
-                        for (var i = 0; i < response[currentCampaign]["user_role_campaign"]["analyst"].length; i++) {
-                           if (includeUser(response[currentCampaign]["user_role_campaign"]["analyst"][i])){
-                           all_users_dups.push(response[currentCampaign]["user_role_campaign"]["analyst"][i]);
-			   }
-			}
-                }
-                if (response[currentCampaign]["user_role_campaign"]["author"]){
-                        for (var i = 0; i < response[currentCampaign]["user_role_campaign"]["author"].length; i++) {
-                           if (includeUser(response[currentCampaign]["user_role_campaign"]["author"][i])){
-                           all_users_dups.push(response[currentCampaign]["user_role_campaign"]["author"][i]);
-			   }
-                        }
-                }
-                if (response[currentCampaign]["user_role_campaign"]["supervisor"]){
-                        for (var i = 0; i < response[currentCampaign]["user_role_campaign"]["supervisor"].length; i++) {
-                           if (includeUser(response[currentCampaign]["user_role_campaign"]["supervisor"][i])){
-                           all_users_dups.push(response[currentCampaign]["user_role_campaign"]["supervisor"][i]);
-			   }
-                        }
-                }
-		all_users = _.uniq(all_users_dups);
-	    //catch and don't run if campaign has no users/responses
-            if (all_users.length === 0){
-		$("#alertBox").fadeIn();	
-		$("#generated-content").hide();
-		$("#info_text").hide();
-		$("#campaign_select").val("Select a campaign");	
-	    }else{
-		oh.user.read(all_users.toString(), function(response){
-			all_user_info = response;
-	          oh.survey_response_read(currentCampaign, function(currentResponses){
-		//add activity state of active to each of these users.
-		var active_users = [];
-		var user_total = {};
-		$.each(currentResponses, function(i, value){
-		  var user = value['user'];
-			//TODO: make additional user/read calls for folks who are no longer attached to the campaign but have responses
-			if (!all_user_info[user]){
-			  all_user_info[user] = {"first_name": "unknown","last_name": "unknown"}; 
-			}
-		  active_users.push(value['user']);
-		  value['first_name'] = all_user_info[user]["first_name"] || "unknown";
-		  value['last_name'] = all_user_info[user]["last_name"] || "unknown";
-		  value['activity'] = "active";
-		   //this is weird, but we need to count total responses per user for #distribution_graph below
-		   if (isNaN(user_total[user])){
-		    user_total[user] = new Number();
-		   }
-		   user_total[user] += value['count'];
-		});
-		active_users = _.uniq(active_users);
-		var inactive_users = _.difference(all_users, active_users);
-		for (var i=0; i < inactive_users.length; i++) {
-		 var user = inactive_users[i];
-		 currentResponses.splice(0,0,{"count":0,"privacy_state":"private","utc_timestamp":"1970-01-01 00:00:00","user": user, "first_name": all_user_info[user]["first_name"] || "unknown", "last_name": all_user_info[user]["last_name"] || "unknown", "activity":"inactive", "client": "na", "location_status": "unavailable", "user_total":0});
-		};
+ if($("#alertBox").is(':visible')){ $("#alertBox").hide(); }
+ currentCampaign = $("#campaign_select option:selected").val();
+ window.location.hash = currentCampaign;
+ $("#info_title").text($("#campaign_select option:selected").text());
+ 
+ // ~~~ CREATING OUR RESPONSES OBJECT ~~~
+ //start with a survey_response/read user-collapsed call, gets all active users
+ oh.survey_response_read.user(currentCampaign, function(countByUser){
+  all_users_dups = [];
+  active_users = [];
+  user_total = {};
+  $.each(countByUser, function(i, value){ //for each user, mark them as active and a user
+   all_users_dups.push(value["user"]);
+   active_users.push(value["user"]);
+   user_total[value["user"]] = value["count"];
+  });
+  oh.campaign_read.long(currentCampaign, function(response){ //campaign/read to grab inactive users
+   var roles = ["supervisor", "participant", "analyst"];
+   for (var i = 0; i < roles.length; i++) {
+    var role = roles[i]
+    if (response[currentCampaign]["user_role_campaign"][role]){ //for each role, permute list
+     for (var j = 0; j < response[currentCampaign]["user_role_campaign"][role].length; j++) {
+      var curUser = response[currentCampaign]["user_role_campaign"][role][j]
+      if (includeUser(curUser)){
+       all_users_dups.push(curUser);
+      }
+     }
+    }
+   }
+  all_users = _.uniq(all_users_dups);
+  if (all_users.length === 0){ //if still no users, catch and stop
+   $("#alertBox").fadeIn();	
+   $("#generated-content").hide();
+   $("#info_text").hide();
+   $("#campaign_select").val("Select a campaign");
+  }else{
+   oh.user.read(all_users.toString(), function(response){ //user/read for personal info
+    all_user_info = response;	
+    oh.survey_response_read(currentCampaign, function(currentResponses){
+     $.each(currentResponses, function(i, value){
+      var user = value['user'];
+      value['first_name'] = (((all_user_info||{})[user]||{})["first_name"]||"unknown");
+      value['last_name'] = (((all_user_info||{})[user]||{})["last_name"]||"unknown");
+      value['activity'] = "active";
+     });
+     var inactive_users = _.difference(all_users, active_users); 
+     for (var i=0; i < inactive_users.length; i++) { //splice an inactive user line in for each inactive user
+      var user = inactive_users[i];
+      var first_name = (((all_user_info||{})[user]||{})["first_name"]||"unknown");
+      var last_name = (((all_user_info||{})[user]||{})["last_name"]||"unknown");
+      currentResponses.splice(0,0,{"count":0,"privacy_state":"private","utc_timestamp":"1970-01-01 00:00:00","user": user, "first_name": first_name, "last_name": last_name, "activity":"inactive", "client": "na", "location_status": "unavailable", "user_total":0});
+     };
 		
 // ~~~~ LET'S MAKE SOME CHARTS ~~~~
  //first, format the date like a date
  parseDate = d3.time.format("%Y-%m-%d %X").parse;
+  console.log(currentResponses);
   currentResponses.forEach(function(d) {
     d.realdate = parseDate(d.utc_timestamp);
     d.client = alignClientString(d.client);
@@ -453,10 +436,11 @@ $("#campaign_select").change(function() {
         RefreshTable();
    $("#generated-content").show();
    dc.renderAll();
-}); //end survey_response/read
-}); //end user/read
-}; //end no-user if
-}); //end campaign/read
+    }); //end survey_response_read for currentResponses
+   }); //end user.read
+  };
+  }); //end campaign_read.long
+ }); //end survey_response_read.user
 }); //end onChange for #campaign_select
 //generate info table
 function buildInfoTable(responses){
@@ -484,7 +468,8 @@ function buildInfoTable(responses){
    $("#info_firstDate").text((dateList.length > 0 ? d3.time.format('%b %e, %Y')(minDate) : "N/A"));
    $("#info_lastDate").text((dateList.length > 0 ? d3.time.format('%b %e, %Y')(maxDate) : "N/A"));
    $("#info_totalDate").text((dateList.length > 0 ? rangeDate : "N/A"));
-};  
+};
+  
 
 // a hack to prevent certain users from displaying on lausd.mobilizingcs.org
 function includeUser(user){

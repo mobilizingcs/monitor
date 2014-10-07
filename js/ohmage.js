@@ -305,6 +305,21 @@ oh.survey_response_read.privacy = function(campaign, cb){
         });
         return req;
 };
+oh.survey_response_read.user = function(campaign, cb){
+        var req = oh.call("/survey_response/read", {
+                output_format : "json-rows",
+                campaign_urn: campaign,
+                collapse: "true",
+                user_list: "urn:ohmage:special:all",
+                survey_id_list: "urn:ohmage:special:all",
+                column_list: "urn:ohmage:user:id"
+        }, function(res){
+                if(!cb) return;
+                var arg = (res.data ) ? res.data : null;
+                cb(arg)
+        });
+        return req;
+};
 oh.user.read = function(user_list, cb){
         var req = oh.call("/user/read", {
                 user_list: user_list
