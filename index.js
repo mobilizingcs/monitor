@@ -86,7 +86,6 @@ $("#campaign_select").change(function() {
 // ~~~~ LET'S MAKE SOME CHARTS ~~~~
  //first, format the date like a date
  parseDate = d3.time.format("%Y-%m-%d %X").parse;
-  console.log(currentResponses);
   currentResponses.forEach(function(d) {
     d.realdate = parseDate(d.utc_timestamp);
     d.client = alignClientString(d.client);
