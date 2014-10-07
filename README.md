@@ -3,7 +3,7 @@ Campaign Monitoring Tool
 
 A js tool written using the following libraries to monitor the current state of ohmage campaigns a user has access to:
   * dc.js (includes d3.js and crossfilter.js)
-  * dynatable
+  * dynatable (changes from dynatable do no propagate back to the dc charts)
   * underscore.js (a bit)
   * jQuery
   * bootstrap 3
