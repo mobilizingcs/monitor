@@ -133,7 +133,7 @@ oh.call = function(path, data, datafun){
 	var data = data ? data : {};		
 	
 	//default parameter
-	data.client = "dashboard"
+	data.client = "campaign-monitor"
 		
 	var myrequest = $.ajax({
 		type: "POST",
