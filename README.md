@@ -18,3 +18,6 @@ Graphs currently included display
 
 
 **compatible with the ohmage 2.x server series**
+
+## License
+This project is licensed under the Apache version 2 license. Please see the License file in this repository for the full text.
