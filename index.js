@@ -13,34 +13,25 @@ $(function(){
   oh.user.whoami().done(function(username){
     oh.keepalive();
     oh.campaign.readall({output_format: 'short'}).done(function(campaigns){
-		  var hash = window.location.hash
-		  var hashMatch = new String();
+      //assume the hash is a valid campaign urn
+		  var currentUrn = window.location.hash.substring(1)
 		  //make an array of campaign name/urn. someone tell me how to do this better.
  		   $.each(campaigns, function(i, value){
 		     campaignList.push({"name": value.name, "urn": i});
 		   });
-		  var sortList = _.sortBy(campaignList, function(row){ return row.name.toLowerCase(); });
-		  $.each(sortList, function(i, v){
-		    if (hash === "#"+v.urn) {
-		  	hashMatch = v.urn;
-		    }		
-		    $("#campaign_select")
-		      .append($("<option></option>")
-		      .attr("value",v.urn)
-		      .text(v.name));
-		  });
-		   $("#campaign_select").removeProp('disabled');
-		   //if urn in hash matches, load this campaign, otherwise just ignore it
-		   if (hashMatch.length > 0) {
-		    $("#campaign_select").val(hashMatch).change();
-		   }
+       currentCampaign = _.findWhere(campaignList, {urn: currentUrn})
+       if (currentCampaign === undefined){
+          alert('No viewable campaigns match. Please go back.')
+       } else {
+        doEverything(currentCampaign);
+       }
 		});
   });
 
-  $("#campaign_select").change(function() {
+  function doEverything(campaignObject){
+   var currentCampaign = campaignObject['urn'];
+   $("#campaign_name").text(campaignObject['name']);
    if($("#alertBox").is(':visible')){ $("#alertBox").hide(); }
-   currentCampaign = $("#campaign_select option:selected").val();
-   window.location.hash = currentCampaign;
    $("#manage-data-link").attr('href', '/#responsetool/#' + currentCampaign)
    $("#info_title").text($("#campaign_select option:selected").text());
    
@@ -350,7 +341,6 @@ $(function(){
   		        }
   		      }
           }else{
-            console.log(d)
   		      p.users[d.user] = {};
   		      p.users[d.user]["first_name"] = d.first_name;
   		      p.users[d.user]["last_name"] = d.last_name;
@@ -359,7 +349,6 @@ $(function(){
             p.users[d.user]["shared"] = 0;
             p.users[d.user]["private"] = 0;
   		      if (d.count > 0) {
-              console.log('test')
               p.users[d.user]["total"] = 1;
   		        if (d.privacy_state == "shared"){
                 p.users[d.user]["shared"] = 1;
@@ -469,7 +458,7 @@ $(function(){
     };
     }); //end campaign_read.long
    }); //end survey_response_read.user
-  }); //end onChange for #campaign_select
+  }; //end doEverything function
   //generate info table
   function buildInfoTable(responses){
     var userCount = { total:0,active:0,inactive:0,list:[] }
