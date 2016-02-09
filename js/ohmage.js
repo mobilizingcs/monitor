@@ -63,16 +63,23 @@
   		//default parameter
   		data.client = client;
   
-  		//add auth_token from cookie
-  		if($.cookie('auth_token')){
-  			data.auth_token = $.cookie('auth_token');
-  		}
+		var headers = {};
+
+		// add bearer token for keycloak auth
+		if ($.cookie("KEYCLOAK_TOKEN")) {
+			$.removeCookie("auth_token");
+			headers = {"Authorization": "Bearer "+$.cookie("KEYCLOAK_TOKEN")};
+		// otherwise, add the auth_token cookie as a param.
+		} else if($.cookie('auth_token')){
+			data.auth_token = $.cookie('auth_token');
+		}
   
   		//ajax parameters
   		var ajaxparams = {
   			type: "POST",
   			url : app + path,
   			data: data,
+  			headers: headers,
   			dataType: "text",
   			xhrFields: {
   				withCredentials: true
