@@ -32,7 +32,7 @@ $(function(){
    var currentCampaign = campaignObject['urn'];
    $("#campaign_name").text(campaignObject['name']);
    if($("#alertBox").is(':visible')){ $("#alertBox").hide(); }
-   $("#manage-data-link").attr('href', '/#responsetool/#' + currentCampaign)
+   $("#manage-data-link").attr('href', '/#responses/#' + currentCampaign)
    $("#info_title").text($("#campaign_select option:selected").text());
    
    // ~~~ CREATING OUR RESPONSES OBJECT ~~~
